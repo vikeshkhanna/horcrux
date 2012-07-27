@@ -26,7 +26,7 @@
 		$(hover_menu_div).css('opacity', 0);
 		
 		var hover_menu_nub_div = document.createElement('div');
-		$(hover_menu_nub_div).addClass("hover_menu_nub_div");
+		$(hover_menu_nub_div).addClass("hover_menu_nub");
 		
 		hover_menu_contents_div = document.createElement('div');
 		$(hover_menu_contents_div).addClass(hover_menu_contents_css);
@@ -129,14 +129,12 @@
 	function onMouseEnter(user)
 	{
 		showHoverMenu(user);
-		console.log("<horcrux> Entering user: " + cache[escapeString(user.innerHTML)]["img"].src);
 	}
 	
 	//handle mouse leave
 	function onMouseLeave(user)
 	{
 		hideHoverMenu();
-		console.log("<horcrux> Leaving user: " + user.href);
 	}
 	
 	// escape
@@ -209,7 +207,6 @@
 				};
 				
 				cache[name] = data;
-				console.log(data);
 			},
 			error : function(xhr, textStatus, errorThrown)
 			{
