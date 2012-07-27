@@ -1,0 +1,24 @@
+{
+  "name": "Horcrux",
+  "version": "1.0",
+  "description": "Hover Cards for Quora.",
+
+  "content_scripts" : [
+  {
+	 "matches": [
+        "*://*.quora.com/*"
+      ],
+	 "js" : [ "js/jquery.js", "js/content_script.js"],
+	 "css" : [ "css/hover.css"],
+	 "all_frames" : true,
+	 "run_at" : "document_start"
+  }],
+  
+  "permissions": ["tabs", "http://www.quora.com/"],
+  
+   "icons": {
+    "16":"images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png",
+    "256": "images/icon256.png"
+}
