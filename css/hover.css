@@ -33,50 +33,83 @@
     width: 300px;
 }
 .horcrux_menu .horcrux_menu_nub {
-    background: url("http://qsf.cf.quoracdn.net/-f5369c624463f0f6.png") no-repeat scroll 10px top transparent;
     height: 5px;
     position: relative;
     top: 1px;
     z-index: 202;
 }
 .horcrux_menu .horcrux_menu_nub.horcrux_menu_nub_down {
-    background: url("http://qsf.cf.quoracdn.net/-deacbe037f57257f.png") no-repeat scroll 10px top transparent;
     clear: both;
     top: -1px;
 }
-.horcrux_menu h1
+
+.hover_header 
 {
-	font-size:18px;
 	padding:4px;
 }
 
+.hover_header h1
+{
+	font-size:18px;
+	padding:0px;
+	padding:0px;
+	margin:0px;
 }
 
-.horcrux_menu_contents img
+.hover_header h2
 {
-	width:100px;
-	height:100px;
-}
-
-.horcrux_menu_contents h2
-{
-	font-size:16px;
-	display:inline;
-	margin-right:8px;
-}
-
-.horcrux_menu_contents li
-{
-	color:#aaaaaa;
 	font-size:14px;
-	padding:8px;
-	font-weight:bold;
+	color:#777777;
+	padding:0px;
+	margin:0px;
+	font-weight:normal;
 }
 
-.horcrux_menu_contents div
+.horcrux_menu hr
 {
+	margin-top:2px;
+}
+
+.horcrux_menu .image 
+{
+	float:left;
 	padding-top:8px;
 	padding-right:8px;
+}
+
+.horcrux_menu .info
+{
+	float:left;
+	padding-top:8px;
+}
+
+.horcrux_menu .hover_image
+{
+	width:120px;
+	height:120px;
+}
+
+
+.info h2
+{
+	font-size:18px;
+}
+
+.info h3
+{
+	font-size:14px;
+	color:#aaaaaa;
+}
+
+.info table 
+{
+	border-spacing:0px;
+}
+
+.info table tr td
+{
+	padding:8px;
+	margin:0px;	
 }
 
 .hidden

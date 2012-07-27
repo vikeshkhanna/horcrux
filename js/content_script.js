@@ -4,6 +4,16 @@
 	var hover_menu_div, hover_menu_contents_div;
 	var hover_menu_css = 'horcrux_menu';
 	var hover_menu_contents_css = 'horcrux_menu_contents';
+	
+	var states = {
+		"DISPLAY_SHOW_INVOKE":0,
+		"DISPLAY_ON":1,
+		"DISPLAY_OFF":2,
+		"DISPLAY_CANCEL":3,
+		"DISPLAY_HIDE_INVOKE":4
+	}
+	
+	var hoverState;
 	var curUser = null;
 	
 	// document ready
@@ -26,22 +36,37 @@
 		$(hover_menu_div).css('opacity', 0);
 		
 		var hover_menu_nub_div = document.createElement('div');
-		$(hover_menu_nub_div).addClass("hover_menu_nub");
+		$(hover_menu_nub_div).addClass("horcrux_menu_nub");
 		
+		// var nub = chrome.extension.getURL('images/nub.png');
 		hover_menu_contents_div = document.createElement('div');
 		$(hover_menu_contents_div).addClass(hover_menu_contents_css);
 		
 		hover_menu_div.appendChild(hover_menu_nub_div);
 		hover_menu_div.appendChild(hover_menu_contents_div);
 		
+		$(hover_menu_div).mouseleave(function(e)
+		{
+			
+			if(e.pageY > $(curUser).offset().bottom || e.pageY < $(curUser).offset().top 
+				|| e.pageX > $(curUser).offset().left +  $(curUser).outerWidth() || e.pageX < $(curUser).offset().left)
+			{
+				hideHoverMenu(); 
+			}
+		});
+		
 		console.log("<horcrux> Constructed hover menu");
 		$("body").append(hover_menu_div);
+		$(".horcrux_menu_nub").css("background", "url('http://qsf.cf.quoracdn.net/-f5369c624463f0f6.png') no-repeat scroll 10px top transparent");
 	}
 	
 	// show hover menu
 	function showHoverMenu(user)
 	{
 		var name = escapeString(user.innerHTML);
+		var username = getUsername(user);
+		hoverState = states.DISPLAY_SHOW_INVOKE;
+		$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
 		$(hover_menu_contents_div).html('');
 		
 		while(hover_menu_contents_div.children.length)
@@ -49,45 +74,51 @@
 			hover_menu_contents_div.removeChild(hover_menu_contents_div.firstChild);
 		}
 		
-		if(cache.hasOwnProperty(name))
+		if(cache.hasOwnProperty(username))
 		{
-			var img = cache[name]["img"];
+			var img = cache[username]["img"];
 			
 			var name_h1 = document.createElement('h1');
 			name_h1.innerHTML = name;
 			
 			var hr = document.createElement('hr');
 			
-			hover_menu_contents_div.appendChild(name_h1);
+			var header = document.createElement("div");
+			$(header).addClass('hover_header');
+			
+			header.appendChild(name_h1);
+		
+			if(cache[username]["intro"])
+			{
+				var intro = document.createElement("h2");
+				intro.innerHTML = cache[username]["intro"];
+				header.appendChild(intro);
+			}
+			
+			hover_menu_contents_div.appendChild(header);
 			hover_menu_contents_div.appendChild(hr);
 			
 			var img_div = document.createElement('div');
-			$(img_div).css('float', 'left');
-			img_div.appendChild(img);
+			$(img_div).addClass('image');
+			img_tag = document.createElement('img');
+			img_tag.src = img.src;
+			$(img_tag).addClass('hover_image');
+			img_div.appendChild(img_tag);
 			
 			var info_div = document.createElement('div');
-			$(info_div).css('float', 'left');
-			
-			var ul = document.createElement('ul');
-			
-			var span_followers = document.createElement('li');
-			span_followers.innerHTML = "<h2>"+cache[name]["followers"]+"</h2> followers"
-			ul.appendChild(span_followers);
-			
-			var span_following = document.createElement('li');
-			span_following.innerHTML = "<h2>"+cache[name]["following"]+"</h2> following"
-			ul.appendChild(span_following);
-			
-			var span_topics = document.createElement('li');
-			span_topics.innerHTML = "<h2>"+cache[name]["topics"]+"</h2> topics"
-			ul.appendChild(span_topics);
-			
 			$(info_div).addClass('info');
-			var span_boards = document.createElement('li');
-			span_boards.innerHTML = "<h2>"+cache[name]["boards"]+"</h2> boards"
-			ul.appendChild(span_boards);
 			
-			info_div.appendChild(ul);
+			var table = document.createElement('table');
+			table.innerHTML = "<tr> \
+									<td><h2>" + cache[username]["followers"] +"</h2> <h3>followers</h3></td> \
+									<td><h2>" + cache[username]["following"] +"</h2> <h3>following</h3></td> \
+								</tr> \
+								<tr>  \
+									<td><h2>" + cache[username]["topics"] +"</h2> <h3>topics</h3></td> \
+									<td><h2>" + cache[username]["boards"] +"</h2> <h3>boards</h3></td> \
+								</tr>";
+			
+			info_div.appendChild(table);
 			hover_menu_contents_div.appendChild(img_div);
 			hover_menu_contents_div.appendChild(info_div);
 		}
@@ -100,20 +131,27 @@
 		
 		// wait before showing
 		setTimeout( function(){
-			if(curUser == user)
+			if(curUser == user && hoverState == states.DISPLAY_SHOW_INVOKE)
 			{
+					hoverState = states.DISPLAY_ON;
 					$(hover_menu_div).removeClass('hidden');
-					$(hover_menu_div).offset({top: $(user).offset().top + 20, left: $(user).offset().left});
-					$(hover_menu_div).animate({opacity:1}, 500, function() { } );
+					$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
+					$(hover_menu_div).animate({opacity:1}, 300, function() { } );
 			}
-		}, 1000);
+		}, 1200);
 		
 	}
 	
 	function hideHoverMenu()
 	{
 		curUser = null;
-		$(hover_menu_div).animate({opacity:0}, 500, function() { $(this).addClass('hidden');} );
+		hoverState = states.DISPLAY_HIDE_INVOKE;
+		$(hover_menu_div).animate({opacity:0}, 300, function() { 
+			if(hoverState==states.DISPLAY_HIDE_INVOKE)
+			{
+				hoverState = states.DISPLAY_OFF;
+				$(this).addClass('hidden');
+			}});
 	}
 	
 	// fetch users
@@ -132,7 +170,7 @@
 	}
 	
 	//handle mouse leave
-	function onMouseLeave(user)
+	function onMouseLeave()
 	{
 		hideHoverMenu();
 	}
@@ -143,19 +181,38 @@
 		return str.replace("'","\'").replace('"','\"');
 	}
 	
+	function getUsername(user)
+	{
+		return user.href.split('/')[3];
+	}
+	
 	// update users
 	function addUser(user)
 	{
 		if(users.indexOf(user) == -1)
 		{
 			var name = escapeString(user.innerHTML);
+			var username= getUsername(user);
 			console.log("<horcrux> adding new tag for user " + name);
 			users.push(user);
 			$(user).mouseenter(function(){ onMouseEnter(this); });
-			$(user).mouseleave(function(){ onMouseLeave(this); });
-		
+			
+			$(user).mouseleave(function(e)
+			{ 
+				if(hoverState == states.DISPLAY_SHOW_INVOKE)
+				{
+					hoverState = states.DISPLAY_CANCEL;
+					onMouseLeave(this);
+				}
+					
+				if(e.pageY < $(hover_menu_div).offset().top)
+				{
+					onMouseLeave(this);
+				}
+			});
+			
 			// update cache
-			if(!cache.hasOwnProperty(name))
+			if(!cache.hasOwnProperty(username))
 			{
 				console.log("<horcrux> Adding cache entry for : " + name);
 				fetchCacheData(user);
@@ -166,7 +223,7 @@
 	// fetch data
 	function fetchCacheData(user)
 	{
-		var userName = user.href.split('/')[3];
+		var userName = getUsername(user);
 		var name = escapeString(user.innerHTML);
 		
 		var img;
@@ -191,6 +248,7 @@
 					following = $(response).find("a[href|='/"+userName+"/following'] > span")[0];
 					topics = $(response).find("a[href|='/"+userName+"/topics'] > span")[0];
 					boards = $(response).find("a[href|='/"+userName+"/boards'] > span")[0];
+					intro = $(response).find(".rep")[1];
 				}
 				catch(e)
 				{
@@ -203,10 +261,11 @@
 				"followers":followers == undefined ? 0 : followers.innerHTML,
 				"following":following == undefined ? 0 : following.innerHTML,
 				"topics":topics == undefined ? 0 : topics.innerHTML,
-				"boards":boards == undefined ? 0 : boards.innerHTML
+				"boards":boards == undefined ? 0 : boards.innerHTML,
+				"intro" : intro == undefined ? undefined : intro.innerHTML 
 				};
 				
-				cache[name] = data;
+				cache[userName] = data;
 			},
 			error : function(xhr, textStatus, errorThrown)
 			{
