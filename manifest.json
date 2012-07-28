@@ -1,6 +1,6 @@
 {
   "name": "Horcrux",
-  "version": "1.3",
+  "version": "1.5",
   "description": "Hover Cards for Quora.",
 
   "content_scripts" : [
@@ -15,7 +15,8 @@
   }],
   
   "permissions": ["tabs", "http://www.quora.com/"],
-  
+  "background_page": "background.html",
+   
    "icons": {
     "16":"images/icon16.png",
     "48": "images/icon48.png",
