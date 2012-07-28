@@ -1,8 +1,9 @@
 (function(){
 	var users = new Array();
-	var hover_menu_div, hover_menu_contents_div;
+	var hover_menu_div = null, hover_menu_contents_div;
 	var hover_menu_css = 'horcrux_menu';
 	var hover_menu_contents_css = 'horcrux_menu_contents';
+	var initialized = false;
 	
 	var states = {
 		"DISPLAY_SHOW_INVOKE":0,
@@ -17,8 +18,9 @@
 	
 	// document ready
 	$(document).ready(function(){
-			fetchUsers();
+			// this is required to prevent 
 			constructHoverMenu();
+			fetchUsers();
 			
 			$("body").bind("DOMSubtreeModified", function() {
 					// console.log("tree changed");
@@ -59,27 +61,76 @@
 		$(".horcrux_menu_nub").css("background", "url('http://qsf.cf.quoracdn.net/-f5369c624463f0f6.png') no-repeat scroll 10px top transparent");
 	}
 	
+	function clean(element)
+	{
+		$(element).html('');
+		
+		while(element.children.length)
+		{
+			element.removeChild(element.firstChild);
+		}
+	}
+	
 	// show hover menu
 	function showHoverMenu(user)
 	{
 		var name = escapeString(user.innerHTML);
 		var username = getUsername(user);
 		$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
-		$(hover_menu_contents_div).html('');
-		
-		while(hover_menu_contents_div.children.length)
-		{
-			hover_menu_contents_div.removeChild(hover_menu_contents_div.firstChild);
-		}
-		
+		curUser = user;
+			
 		chrome.extension.sendRequest({'method' : 'getUser', 'username': username, 'name': name}, function(response){
 			var data = response["data"];
+			populateCard(username, data);
+			
+			if(!data)
+			{
+					// request user's details, which in turn calls populate card with correct data
+					requestUser(username, name);
+			}
+			
+			if(hoverState == states.DISPLAY_HIDE_INVOKE)
+			{
+				hoverState = states.DISPLAY_SHOW_INVOKE;
+				showCard();
+			}
+			else
+			{
+				// wait before showing
+				hoverState = states.DISPLAY_SHOW_INVOKE;
+				setTimeout( function(){
+						showCard(user);
+					}, 800);
+			}
+			
+			function showCard(user)
+			{
+				if(curUser == user && hoverState == states.DISPLAY_SHOW_INVOKE)
+				{
+						hoverState = states.DISPLAY_ON;
+						$(hover_menu_div).removeClass('hidden');
+						$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
+						$(hover_menu_div).css('opacity', 1);
+						// $(hover_menu_div).animate({opacity:1}, 300, function() { } );
+				}
+			}
+		});
+	}
+	
+	function populateCard(username, data)
+	{
+			if(curUser && getUsername(curUser) != username)
+			{
+				return;
+			}
+			
+			clean(hover_menu_contents_div);
 			
 			if(data)
 			{
 				var img = data["img"];
 				var name_h1 = document.createElement('h1');
-				name_h1.innerHTML = name;
+				name_h1.innerHTML = data["name"];
 				
 				var header = document.createElement("div");
 				$(header).addClass('hover_header');
@@ -142,36 +193,13 @@
 			}
 			else
 			{
-				$(hover_menu_contents_div).html('Still loading data. Please hover in a while :(	');
+				// $(hover_menu_contents_div).html('Loading Data.');
+				var img = document.createElement('img');
+				img.src = chrome.extension.getURL("images/spinner.gif");
+				hover_menu_contents_div.appendChild(img);
 			}
-			
-			curUser = user;
-			if(hoverState == states.DISPLAY_HIDE_INVOKE)
-			{
-				hoverState = states.DISPLAY_SHOW_INVOKE;
-				showCard();
-			}
-			else
-			{
-				// wait before showing
-				hoverState = states.DISPLAY_SHOW_INVOKE;
-				setTimeout( function(){
-						showCard();
-					}, 800);
-			}
-			
-			function showCard()
-			{
-				if(curUser == user && hoverState == states.DISPLAY_SHOW_INVOKE)
-				{
-						hoverState = states.DISPLAY_ON;
-						$(hover_menu_div).removeClass('hidden');
-						$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
-						$(hover_menu_div).animate({opacity:1}, 300, function() { } );
-				}
-			}
-		});
 	}
+	
 	
 	function hideHoverMenu()
 	{
@@ -190,7 +218,7 @@
 	
 	// fetch users
 	function fetchUsers()
-	{
+	{	
 		$('a[class|="user"]').each(function(index)
 		{
 			addUser(this);
@@ -246,10 +274,16 @@
 				}
 			});
 			
-			// send request to background page
-			chrome.extension.sendRequest({"method":"addUser", "username": username }, function(response){
-				console.log("<horcrux> Successfully added user : " + user.innerHTML);
-			});
+			// Uncomment for aggressive look-ahead caching - BAD FOR BANDWIDTH
+			// requestUser(username, name);
 		}
+	}
+	
+	function requestUser(username, name)
+	{
+			// send request to background page
+			chrome.extension.sendRequest({"method":"addUser", "username": username, "name": name }, function(response){
+				populateCard(username, response["data"]);
+			});
 	}
 })();

@@ -11,7 +11,7 @@
 				var name = request["name"];
 				
 				console.log("<horcrux> Background addUser: " + username); 
-				addUser(username, name);
+				addUser(username, name, sendResponse);
 			}
 			
 			if(request['method'] == "getUser")
@@ -43,14 +43,14 @@
 		return cache.hasOwnProperty(username);
 	}
 	
-	function addUser(username, name)
+	function addUser(username, name, callback)
 	{
 		
 		// update cache
 		if(!isUser(username))
 		{
 			console.log("<horcrux> Adding cache entry for : " + username);
-			fetchCacheData(username, name);
+			fetchCacheData(username, name, callback);
 		}
 		else
 		{
@@ -59,7 +59,7 @@
 	}
 	
 	// fetch user data
-	function fetchCacheData(username, name)
+	function fetchCacheData(username, name, callback)
 	{
 		var img;
 		var followers, following, topics, boards;
@@ -102,10 +102,12 @@
 				
 				cache[username] = data;
 				console.log("<horcrux> Successfully added cache entry for " + username);
+				callback({"data" : cache[username]});
 			},
 			error : function(xhr, textStatus, errorThrown)
 			{
 				console.log("<horcrux> " + textStatus + " = " + errorThrown);
+				callback({"data" : "error"});
 			}
 		});	
 	}

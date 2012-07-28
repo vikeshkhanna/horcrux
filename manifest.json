@@ -8,6 +8,9 @@
 	 "matches": [
         "*://*.quora.com/*"
       ],
+	 "exclude_matches":[
+		"*://*.quora.com/widgets/*"
+	 ],
 	 "js" : [ "js/jquery.js", "js/content_script.js" ],
 	 "css" : [ "css/hover.css"],
 	 "all_frames" : true,
