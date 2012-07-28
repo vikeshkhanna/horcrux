@@ -65,7 +65,6 @@
 	{
 		var name = escapeString(user.innerHTML);
 		var username = getUsername(user);
-		hoverState = states.DISPLAY_SHOW_INVOKE;
 		$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
 		$(hover_menu_contents_div).html('');
 		
@@ -81,8 +80,6 @@
 			var name_h1 = document.createElement('h1');
 			name_h1.innerHTML = name;
 			
-			var hr = document.createElement('hr');
-			
 			var header = document.createElement("div");
 			$(header).addClass('hover_header');
 			
@@ -94,10 +91,7 @@
 				intro.innerHTML = cache[username]["intro"];
 				header.appendChild(intro);
 			}
-			
-			hover_menu_contents_div.appendChild(header);
-			hover_menu_contents_div.appendChild(hr);
-			
+		
 			var img_div = document.createElement('div');
 			$(img_div).addClass('image');
 			img_tag = document.createElement('img');
@@ -119,8 +113,32 @@
 								</tr>";
 			
 			info_div.appendChild(table);
-			hover_menu_contents_div.appendChild(img_div);
-			hover_menu_contents_div.appendChild(info_div);
+			
+			var follow = document.createElement('div');
+			$(follow).addClass('horcrux_follow');
+			
+			// follow button
+			var span = document.createElement('span');
+			$(span).addClass('quora-follow-button');
+			span.setAttribute("data-name", username);
+			span.appendChild(document.createTextNode('Loading Follow Status'));
+			
+			script = document.createElement('script');
+			script.src = "http://qsc.cf.quoracdn.net/-c20a67afaf9f0d3a.js?embed_code=UnYGxfU";
+			span.appendChild(script);
+			follow.appendChild(span);
+			
+			var snippet = document.createElement('div');
+			$(snippet).addClass('horcrux_contents_snippet');
+			
+			snippet.appendChild(img_div);
+			snippet.appendChild(info_div);
+			
+			hover_menu_contents_div.appendChild(header);
+			hover_menu_contents_div.appendChild(document.createElement('hr'));
+			hover_menu_contents_div.appendChild(snippet);
+			hover_menu_contents_div.appendChild(document.createElement('hr'));
+			hover_menu_contents_div.appendChild(follow);
 		}
 		else
 		{
@@ -129,8 +147,22 @@
 		
 		curUser = user;
 		
-		// wait before showing
-		setTimeout( function(){
+		if(hoverState == states.DISPLAY_HIDE_INVOKE)
+		{
+			hoverState = states.DISPLAY_SHOW_INVOKE;
+			showCard();
+		}
+		else
+		{
+			// wait before showing
+			hoverState = states.DISPLAY_SHOW_INVOKE;
+			setTimeout( function(){
+					showCard();
+				}, 800);
+		}
+		
+		function showCard()
+		{
 			if(curUser == user && hoverState == states.DISPLAY_SHOW_INVOKE)
 			{
 					hoverState = states.DISPLAY_ON;
@@ -138,20 +170,21 @@
 					$(hover_menu_div).offset({top: $(user).offset().top + $(user).outerHeight(), left: $(user).offset().left});
 					$(hover_menu_div).animate({opacity:1}, 300, function() { } );
 			}
-		}, 1200);
-		
+		}
 	}
 	
 	function hideHoverMenu()
 	{
 		curUser = null;
 		hoverState = states.DISPLAY_HIDE_INVOKE;
-		$(hover_menu_div).animate({opacity:0}, 300, function() { 
-			if(hoverState==states.DISPLAY_HIDE_INVOKE)
-			{
-				hoverState = states.DISPLAY_OFF;
-				$(this).addClass('hidden');
-			}});
+		if(hoverState==states.DISPLAY_HIDE_INVOKE)
+		{
+			hoverState = states.DISPLAY_OFF;
+			$(hover_menu_div).addClass('hidden');
+			$(hover_menu_div).css('opacity', 0);
+		}
+		//$(hover_menu_div).animate({opacity:0}, 300, function() { 
+		
 	}
 	
 	// fetch users

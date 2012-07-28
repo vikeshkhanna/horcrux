@@ -68,13 +68,14 @@
 .horcrux_menu hr
 {
 	margin-top:2px;
+	clear:both;
 }
 
 .horcrux_menu .image 
 {
-	float:left;
 	padding-top:8px;
 	padding-right:8px;
+	float:left;
 }
 
 .horcrux_menu .info
@@ -90,26 +91,32 @@
 }
 
 
-.info h2
+.horcrux_menu .info h2
 {
 	font-size:18px;
 }
 
-.info h3
+.horcrux_menu .info h3
 {
 	font-size:14px;
 	color:#aaaaaa;
 }
 
-.info table 
+.horcrux_menu.info table 
 {
 	border-spacing:0px;
 }
 
-.info table tr td
+.horcrux_menu .info table tr td
 {
 	padding:8px;
 	margin:0px;	
+}
+.horcrux_menu .horcrux_follow
+{
+	clear:both;
+	padding-top:5px;
+	background-color:#ffffff;
 }
 
 .hidden

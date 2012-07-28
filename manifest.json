@@ -1,6 +1,6 @@
 {
   "name": "Horcrux",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Hover Cards for Quora.",
 
   "content_scripts" : [
