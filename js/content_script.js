@@ -177,6 +177,7 @@
 	{
 		curUser = null;
 		hoverState = states.DISPLAY_HIDE_INVOKE;
+		
 		if(hoverState==states.DISPLAY_HIDE_INVOKE)
 		{
 			hoverState = states.DISPLAY_OFF;
@@ -216,7 +217,7 @@
 	
 	function getUsername(user)
 	{
-		return user.href.split('/')[3];
+		return decodeURIComponent(user.href).split('/')[3];
 	}
 	
 	// update users
