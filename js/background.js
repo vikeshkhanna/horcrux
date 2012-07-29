@@ -1,6 +1,7 @@
 !function()
 {
 	var cache = {};
+	var MAX_LENGTH = 20
 	
 	chrome.extension.onRequest.addListener(
 		function(request, sender, sendResponse)
@@ -11,6 +12,13 @@
 				var name = request["name"];
 				
 				console.log("<horcrux> Background addUser: " + username); 
+				
+				if(Object.keys(cache).length > MAX_LENGTH)
+				{
+					console.log("<horcrux> Clearing cache");
+					clear(cache);
+				}
+				
 				addUser(username, name, sendResponse);
 			}
 			
@@ -38,6 +46,19 @@
 		}
 	)
 	
+	// clear cache
+	function clear(obj)
+	{
+		for(key in obj)
+		{
+			if(obj.hasOwnProperty(key))
+			{
+				delete(obj[key]);
+			}
+		}
+	}
+	
+	// isUser
 	function isUser(username)
 	{
 		return cache.hasOwnProperty(username);
